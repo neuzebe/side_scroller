@@ -1,0 +1,17 @@
+div
+{
+    padding: 5px 0 5px 0;
+}
+
+canvas
+{
+    border: dashed black;
+}
+
+#slot_machine
+{
+    width: 800px;
+    height: 480px;
+    background: url('../images/slots.png');
+}
+
