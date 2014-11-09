@@ -21,6 +21,15 @@ var background;
 var ground;
 var character;
 var coin;
+var bullet;
+
+var is_player_jumping = false;
+var is_player_falling = false;
+var jump_time = 1;
+var jump_counter = 0;
+var jump_speed = 25;
+
+var KEYCODE_SPACE = 32;
 
 /*
  * preload()
@@ -35,7 +44,9 @@ function preload() {
         { id: "ground", src: "images/ground.png"},
         { id: "cloud", src: "images/cloud.png"},
         { id: "character", src: "images/character.png"},
+        { id: "character_jump", src: "images/character_jump.png"},
         { id: "coin", src: "images/coin.png"},
+        { id: "bullet", src: "images/bullet.png"},
         { id: "tree", src: "images/tree.png"}
     ]);
 }
@@ -57,6 +68,10 @@ function handleTick(event) {
     updateBackground(event);
     updateClouds(event);
     updateCoin(event);
+    updateBullet(event);
+    updatePlayer(event);
+    checkPlayerCoinCollision();
+    checkPlayerBulletCollision();
     stage.update();
 }
 
@@ -124,8 +139,18 @@ function gameStart() {
     coin.regX = coin.image.width / 2;
     coin.regY = coin.image.height / 2;
     coin.x = 60;
-    coin.y = stage.canvas.height - (coin.image.height * 0.5) - (ground.image.height * 0.95);                
+    coin.y = stage.canvas.height - (coin.image.height * 0.5) - (ground.image.height * 0.95) - character.image.height;                
     stage.addChild(coin);    
+    
+    bullet = new createjs.Bitmap(queue.getResult('bullet'));
+    bullet.regX = bullet.image.width / 2;
+    bullet.regY = bullet.image.height / 2;
+    bullet.x = 60;
+    bullet.y = stage.canvas.height - (bullet.image.height * 0.5) - (ground.image.height * 0.95);                
+    stage.addChild(bullet);    
+    
+    
+    this.document.onkeydown = keyPressed;
 }
 
 function updateClouds(event)
@@ -160,6 +185,16 @@ function updateCoin(event)
         resetCoin();
 }
 
+function updateBullet(event)
+{
+    var delta = event.delta / 1000;
+    
+    bullet.x -= delta * stage_speed * 3;
+    
+    if(bullet.x + bullet.image.width < 0)
+        resetBullet();
+}
+
 function resetCloud(cloud)
 {
     cloud.x = stage.canvas.width + cloud.image.width;
@@ -169,4 +204,108 @@ function resetCloud(cloud)
 function resetCoin()
 {
     coin.x = stage.canvas.width + coin.image.width;
+}
+
+function resetBullet()
+{
+    bullet.x = stage.canvas.width + bullet.image.width;
+}
+
+
+function keyPressed(event) {
+    switch(event.keyCode) {
+        case KEYCODE_SPACE:	            
+                playerJump();
+            break;
+    }
+    stage.update();
+}
+
+function updatePlayer(event)
+{
+    var delta = event.delta / 1000;
+    if(is_player_jumping)
+    {
+        jump_counter += delta;
+        if(jump_counter >= jump_time)
+        {
+            console.log('end jump');
+            jump_counter = 0;
+            is_player_jumping = false;
+            is_player_falling = true;                                             
+        }
+        else
+        {
+            character.y -= delta * jump_speed;
+        }
+    }    
+    else if(is_player_falling)
+    {
+        jump_counter += delta;
+        if(jump_counter >= jump_time)
+        {
+            is_player_falling = false;
+            jump_counter = 0;
+            character.image = queue.getResult('character');
+        }
+        else
+        {
+            character.y += delta * jump_speed;
+        }
+    }
+}
+
+function playerJump()
+{
+    if(!is_player_jumping && !is_player_falling)
+    {
+        console.log('start jump');
+        is_player_jumping = true;
+        jump_counter = 0;        
+        character.image = queue.getResult('character_jump');
+        
+    }
+}
+
+function distanceBetween(p1, p2)
+{
+    var result = 0;
+    var xPoints = 0;
+    var yPoints = 0;
+    
+    //console.log(p1);
+    xPoints = p2.x - p1.x;
+    xPoints = xPoints * xPoints;
+
+    yPoints = p2.y - p1.y;
+    yPoints = yPoints * yPoints;
+
+    result = Math.sqrt(xPoints + yPoints);
+
+    
+    return result;    
+}
+
+function checkCollision(object_one, object_two)
+{
+    var p1 = new createjs.Point();
+    var p2 = new createjs.Point();
+    p1.x = object_one.x;
+    p1.y = object_one.y;
+    p2.x = object_two.x;
+    p2.y = object_two.y;
+    
+    return (distanceBetween(p1, p2) < ((object_one.image.height/2) + (object_two.image.height/2)));
+}
+
+function checkPlayerCoinCollision()
+{
+    if(checkCollision(character, coin))
+        console.log('player and coin collided');
+}
+
+function checkPlayerBulletCollision()
+{
+    if(checkCollision(character, bullet))
+        console.log('player and bullet collided');
 }
