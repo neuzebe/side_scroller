@@ -16,7 +16,7 @@
  * Refactored, cleaned up
  * Noel Euzebe 300709334
  * Last Modified By: Noel Euzebe
- * Date Last Modified: 10th Oct 2014
+ * Date Last Modified: 10th Nov 2014
  * ---------
  * game.js
  .
@@ -117,8 +117,7 @@ function handleTick(event) {
     
     switch(game_state)
     {
-        case MENU:
-            showMenu();
+        case MENU:            
             break;
         case PLAYING:   
             updateBackground(event);            
@@ -128,8 +127,7 @@ function handleTick(event) {
             checkPlayerCoinCollision();
             checkPlayerBulletCollision();            
             break;
-        case GAME_OVER:
-            showGameOver();
+        case GAME_OVER:           
             break;
     }
 
@@ -217,33 +215,12 @@ function gameStart() {
     lives_text.x = stage.canvas.width - 130;
     lives_text.y = stage.canvas.height - 35;     
     stage.addChild(lives_text);    
-    
-    
-    play_btn = new createjs.Bitmap(queue.getResult('play_button'));
-    play_btn.regX = play_btn.image.width / 2;
-    play_btn.regY = play_btn.image.height / 2;
-    play_btn.x = stage.canvas.width / 2;
-    play_btn.y = stage.canvas.height / 2 ; 
-    stage.addChild(play_btn);    
-    
-    play_btn.on('rollover', function(){play_btn.alpha = 0.5;});
-    play_btn.on('rollout', function(){play_btn.alpha = 1;});
-    play_btn.on('click', function(){ playGame();});
-    
-    menu_text = new createjs.Text("Press SPACE to jump!\nGet points by capturing the Pokeballs \nbut make sure to dodge the bullets.", "bold 24px Arial", "#ffffff");
-    menu_text.x = 50;
-    menu_text.y =  105;     
-    stage.addChild(menu_text); 
-    
+             
     game_over_text = new createjs.Text("GAME OVER!\n Your Score is " + score, "bold 24px Arial", "#ffffff");
     game_over_text.x = 50;
     game_over_text.y =  105;  
-    
-    title_text = new createjs.Text("The Dark Knight's Gotta Catch Em All", "bold 24px Arial", "#ffff00");
-    title_text.x = 50;
-    title_text.y =  30;     
-    stage.addChild(title_text);   
-            
+      
+     showMenu();       
     this.document.onkeydown = keyPressed;
 }
 
@@ -539,7 +516,26 @@ function checkPlayerBulletCollision()
 
 function showMenu()
 {
-                   
+    play_btn = new createjs.Bitmap(queue.getResult('play_button'));
+    play_btn.regX = play_btn.image.width / 2;
+    play_btn.regY = play_btn.image.height / 2;
+    play_btn.x = stage.canvas.width / 2;
+    play_btn.y = stage.canvas.height / 2 ; 
+    stage.addChild(play_btn);    
+    
+    play_btn.on('rollover', function(){play_btn.alpha = 0.5;});
+    play_btn.on('rollout', function(){play_btn.alpha = 1;});
+    play_btn.on('click', function(){ playGame();});
+    
+    menu_text = new createjs.Text("Press SPACE to jump!\nGet points by capturing the Pokeballs \nbut make sure to dodge the bullets.", "bold 24px Arial", "#ffffff");
+    menu_text.x = 50;
+    menu_text.y =  105;     
+    stage.addChild(menu_text);   
+    
+    title_text = new createjs.Text("The Dark Knight's Gotta Catch Em All", "bold 24px Arial", "#ffff00");
+    title_text.x = 50;
+    title_text.y =  30;     
+    stage.addChild(title_text);     
 }
 
 /*
