@@ -106,6 +106,13 @@ function init() {
     setup();
 }
 
+
+/*handleTick
+ * 
+ * @param {type} event
+ * @returns {undefined}
+ * called every frame, used to update the stage
+ */
 function handleTick(event) {
     
     switch(game_state)
@@ -114,8 +121,7 @@ function handleTick(event) {
             showMenu();
             break;
         case PLAYING:   
-            updateBackground(event);
-            updateTrees(event);
+            updateBackground(event);            
             updateCoin(event);
             updateBullet(event);
             updatePlayer(event);
@@ -128,15 +134,6 @@ function handleTick(event) {
     }
 
     stage.update();
-}
-
-/*
- * setup()
- * sets up initial values for game data
- */
-function setup()
-{
-           
 }
 
 /*
@@ -250,6 +247,12 @@ function gameStart() {
     this.document.onkeydown = keyPressed;
 }
 
+
+/*
+ * updateClouds
+ * called every frame and updates the position of the clouds
+ * resets them when they go off screen
+ */
 function updateClouds(event)
 {
     var delta = event.delta / 1000;
@@ -262,6 +265,11 @@ function updateClouds(event)
     }
 }
 
+/*
+ * updateTrees
+ * called every frame to update the position of the trees on the stage
+ * resets them when they leave the screen
+ */
 function updateTrees(event)
 {
     var delta = event.delta / 1000;
@@ -274,6 +282,13 @@ function updateTrees(event)
     }
 }
 
+
+/*
+ * updateBackground
+ * used to update the ground every frame, resets it once
+ * it moves more than halfway across the screen
+ * calls updateTrees and updateCloud
+ */
 function updateBackground(event)
 {
     var delta = event.delta / 1000;
@@ -282,10 +297,14 @@ function updateBackground(event)
     
     if ( (ground.x) < 0)
         ground.x = stage.canvas.width / 2; 
-    
+    updateTrees(event);
     updateClouds(event);
 }
 
+/*
+ * updateCoin
+ * moves the PokeBall across the screen, resets it when it leaves the screen
+ */
 function updateCoin(event)
 {
     var delta = event.delta / 1000;
@@ -296,6 +315,11 @@ function updateCoin(event)
         resetCoin();
 }
 
+/*
+ * updateBullet
+ * controls the movement of the bullet on the screen
+ * used to reset the bullet's position when it leaves the viewable area
+ */
 function updateBullet(event)
 {
     var delta = event.delta / 1000;
@@ -306,23 +330,41 @@ function updateBullet(event)
         resetBullet();
 }
 
+/*
+ * resetCloud
+ * resets the cloud's position after it leaves the screen
+ */
 function resetCloud(cloud)
 {
     cloud.x = stage.canvas.width + cloud.image.width;
     cloud.y = (Math.random() * (stage.canvas.height / 2)) ;
 }
 
+/*
+ * resetTree
+ * resets the tree's position once it leaves the screen
+ */
 function resetTree(tree)
 {
     tree.x = stage.canvas.width + tree.image.width;    
 }
 
+/*
+ * resetCoin
+ * resets the coin when it leaves the screen or the player collects it
+ * adjusts the movement speed of the coin each time 
+ */
 function resetCoin()
 {
     coin.x = stage.canvas.width + coin.image.width;
     coin_speed = Math.random() * 25 + 45;
 }
 
+/*
+ * resetBullet
+ * reset the position and changes the speed of the bullet every time it 
+ * leaves the screen or collides with the player
+ */
 function resetBullet()
 {
     bullet_speed = Math.random() * 30 + 60;
@@ -330,7 +372,10 @@ function resetBullet()
     
 }
 
-
+/*
+ * event listener for key events
+ * used to listen for and process the spacebar being pressed
+ */
 function keyPressed(event) {
     switch(event.keyCode) {
         case KEYCODE_SPACE:	            
@@ -340,6 +385,10 @@ function keyPressed(event) {
     stage.update();
 }
 
+/*
+ * called every frame
+ * handles the player jumping and falling
+ */
 function updatePlayer(event)
 {
     var delta = event.delta / 1000;
@@ -373,6 +422,11 @@ function updatePlayer(event)
     }
 }
 
+/*
+ * playerJump
+ * used to determine whether the player is in a state that allows him or her
+ * to jump
+ */
 function playerJump()
 {
     if(!is_player_jumping && !is_player_falling)
@@ -384,6 +438,12 @@ function playerJump()
     }
 }
 
+
+/*
+ * distanceBetween(point1, point2)
+ * utility function to calculate the distance between two objects
+ * on the stage
+ */
 function distanceBetween(p1, p2)
 {
     var result = 0;
@@ -401,6 +461,12 @@ function distanceBetween(p1, p2)
     return result;    
 }
 
+
+/*
+ * checkCollision(object_one, object_two)
+ * utility function to determine whether two on-stage objects
+ * are colliding
+ */
 function checkCollision(object_one, object_two)
 {
     var p1 = new createjs.Point();
@@ -413,6 +479,11 @@ function checkCollision(object_one, object_two)
     return (distanceBetween(p1, p2) < ((object_one.image.height/2) + (object_two.image.height/2)));
 }
 
+
+/*
+ * checks to see if the player has collected a pokeball
+ * and handles the score increase and sound effects if so
+ */
 function checkPlayerCoinCollision()
 {
     if(checkCollision(character, coin))
@@ -431,12 +502,22 @@ function checkPlayerCoinCollision()
     }
 }
 
+/*
+ * updateText
+ * utility function to refresh the text display on screen
+ */
+
 function updateText()
 {
     score_text.text = "Score: " + score;
     lives_text.text = "x" + lives;
 }
 
+/*
+ * checkPlayerBulletCollision
+ * checks to see if the player has collided with the bullet
+ * deducts life and plays apt sound effect in such an event
+ */
 function checkPlayerBulletCollision()
 {
     if(checkCollision(character, bullet))
@@ -461,6 +542,11 @@ function showMenu()
                    
 }
 
+/*
+ * showGameOver()
+ * called when the player's lives run out
+ * shows the game over text
+ */
 function showGameOver()
 {   
     for(var i = 0; i < cloud_count; i++)
@@ -470,6 +556,13 @@ function showGameOver()
     stage.addChild(play_btn);
     stage.addChild(game_over_text);
 }
+
+/*
+ * playGame
+ * called when the play button is called
+ * removes menu/game over text, updates the game state
+ * resets the score and life display, and resets the bullet and pokeball
+ */
 
 function playGame()
 {
